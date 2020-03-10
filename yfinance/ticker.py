@@ -35,35 +35,6 @@ from collections import namedtuple as _namedtuple
 from .base import TickerBase
 
 
-class TickerEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Ticker):
-            recommendations = obj.recommendations
-            recommendations.reset_index(drop=True, inplace=True)
-            return {
-                'isin': obj.isin,
-                'info': obj.info,
-                'majority_holders': obj.major_holders.to_json(),
-                'institutional_holders': obj.institutional_holders.to_json(),
-                'dividends': obj.dividends.to_json(),
-                'splits': obj.splits.to_json(),
-                'actions': obj.actions.to_json(),
-                'calendar': obj.calendar.to_json(),
-                'recommendations': recommendations.to_json(),
-                'earnings': obj.earnings.to_json(),
-                'quarterly_earnings': obj.quarterly_earnings.to_json(),
-                'financials': obj.financials.to_json(),
-                'quarterly_financials': obj.quarterly_financials.to_json(),
-                'balance_sheet': obj.balance_sheet.to_json(),
-                'quarterly_balance_sheet': obj.quarterly_balance_sheet.to_json(),
-                'cashflow': obj.cashflow.to_json(),
-                'quarterly_cashflow': obj.quarterly_cashflow.to_json(),
-                'sustainability': obj.sustainability.to_json(),
-                'options': list(obj.options)
-            }
-        return json.JSONEncoder.default(self, obj)
-
-
 class Ticker(TickerBase):
 
     def __repr__(self):
@@ -136,6 +107,37 @@ class Ticker(TickerBase):
     def to_json(self):
         return json.dumps(self, cls=TickerEncoder)
 
+    def to_dict(self):
+        def de_timestamp(obj):
+            for k, v in obj.items():
+                if isinstance(k, _pd.Timestamp):
+                    return k.ctime()
+
+        dividends = self.dividends.to_dict()
+        recommendations = self.recommendations
+        recommendations.reset_index(drop=True, inplace=True)
+        return_object = {
+            'isin': self.isin,
+            'info': self.info,
+            'majority_holders': self.major_holders.to_dict(),
+            'institutional_holders': de_timestamp(self.institutional_holders.to_dict()),
+            'dividends': de_timestamp(dividends),
+            'splits': de_timestamp(self.splits.to_dict()),
+            'actions': de_timestamp(self.actions.to_dict()),
+            'calendar': de_timestamp(self.calendar.to_dict()),
+            'recommendations': recommendations.to_dict(),
+            'earnings': self.earnings.to_dict(),
+            'quarterly_earnings': self.quarterly_earnings.to_dict(),
+            'financials': self.financials.to_dict(),
+            'quarterly_financials': self.quarterly_financials.to_dict(),
+            'balance_sheet': self.balance_sheet.to_dict(),
+            'quarterly_balance_sheet': self.quarterly_balance_sheet.to_dict(),
+            'cashflow': self.cashflow.to_dict(),
+            'quarterly_cashflow': self.quarterly_cashflow.to_dict(),
+            'sustainability': self.sustainability.to_dict() if self.sustainability is not None else None,
+            'options': list(self.options)
+        }
+        return return_object
 
     # ------------------------
 
@@ -228,3 +230,10 @@ class Ticker(TickerBase):
         if not self._expirations:
             self._download_options()
         return tuple(self._expirations.keys())
+
+
+class TickerEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Ticker):
+            return obj.to_dict()
+        return json.JSONEncoder.default(self, obj)

@@ -23,6 +23,15 @@ from __future__ import print_function
 
 from . import Ticker, multi
 from collections import namedtuple as _namedtuple
+import json
+
+
+class TickersEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Tickers):
+            tickers = [t.to_json() for t in obj.tickers]
+            return {"tickers": tickers}
+        return json.JSONEncoder.default(self, obj)
 
 
 def genTickers(tickers):
@@ -67,6 +76,9 @@ class Tickers():
                 actions, auto_adjust, proxy,
                 threads, group_by, progress,
                 **kwargs)
+
+    def to_json(self):
+        return json.dumps({"tickers": [t.to_dict() for t in self.tickers]})
 
     def download(self, period="1mo", interval="1d",
                  start=None, end=None, prepost=False,

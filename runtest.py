@@ -16,6 +16,7 @@ Sanity check for most common library uses all working
 
 from __future__ import print_function
 import yfinance as yf
+import json
 
 
 def test_yfinance():
@@ -41,9 +42,18 @@ def test_yfinance():
 def test_ticker_to_json():
     print(">>", "to_json()", end=' ... ')
     yf.Ticker('MSFT').to_json()
+    yf.Ticker('GOOG').to_json()
+    print("OK")
+
+
+def test_tickers_to_json():
+    print(">>", "to_json()", end=' ... ')
+    ticker_json = yf.Tickers('MSFT GOOG AMZN').to_json()
+    json.loads(ticker_json)
     print("OK")
 
 
 if __name__ == "__main__":
     test_yfinance()
     test_ticker_to_json()
+    test_tickers_to_json()
