@@ -25,6 +25,7 @@ from __future__ import print_function
 import datetime as _datetime
 import requests as _requests
 import pandas as _pd
+import json
 # import numpy as _np
 
 # import json as _json
@@ -32,6 +33,35 @@ import pandas as _pd
 from collections import namedtuple as _namedtuple
 
 from .base import TickerBase
+
+
+class TickerEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Ticker):
+            recommendations = obj.recommendations
+            recommendations.reset_index(drop=True, inplace=True)
+            return {
+                'isin': obj.isin,
+                'info': obj.info,
+                'majority_holders': obj.major_holders.to_json(),
+                'institutional_holders': obj.institutional_holders.to_json(),
+                'dividends': obj.dividends.to_json(),
+                'splits': obj.splits.to_json(),
+                'actions': obj.actions.to_json(),
+                'calendar': obj.calendar.to_json(),
+                'recommendations': recommendations.to_json(),
+                'earnings': obj.earnings.to_json(),
+                'quarterly_earnings': obj.quarterly_earnings.to_json(),
+                'financials': obj.financials.to_json(),
+                'quarterly_financials': obj.quarterly_financials.to_json(),
+                'balance_sheet': obj.balance_sheet.to_json(),
+                'quarterly_balance_sheet': obj.quarterly_balance_sheet.to_json(),
+                'cashflow': obj.cashflow.to_json(),
+                'quarterly_cashflow': obj.quarterly_cashflow.to_json(),
+                'sustainability': obj.sustainability.to_json(),
+                'options': list(obj.options)
+            }
+        return json.JSONEncoder.default(self, obj)
 
 
 class Ticker(TickerBase):
@@ -102,6 +132,10 @@ class Ticker(TickerBase):
             "calls": self._options2df(options['calls'], tz=tz),
             "puts": self._options2df(options['puts'], tz=tz)
         })
+
+    def to_json(self):
+        return json.dumps(self, cls=TickerEncoder)
+
 
     # ------------------------
 

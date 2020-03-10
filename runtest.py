@@ -38,5 +38,12 @@ def test_yfinance():
         print("OK")
 
 
+def test_ticker_to_json():
+    print(">>", "to_json()", end=' ... ')
+    yf.Ticker('MSFT').to_json()
+    print("OK")
+
+
 if __name__ == "__main__":
     test_yfinance()
+    test_ticker_to_json()
