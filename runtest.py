@@ -48,12 +48,12 @@ def test_ticker_to_json():
 
 def test_tickers_to_json():
     print(">>", "to_json()", end=' ... ')
-    ticker_json = yf.Tickers('MSFT GOOG AMZN').to_json()
+    ticker_json = yf.Tickers('AMZN C').to_json()
     json.loads(ticker_json)
     print("OK")
 
 
 if __name__ == "__main__":
-    test_yfinance()
-    test_ticker_to_json()
+    # test_yfinance()
+    # test_ticker_to_json()
     test_tickers_to_json()
