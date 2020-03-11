@@ -60,7 +60,7 @@ class Ticker(TickerBase):
                 self._expirations[_datetime.datetime.fromtimestamp(
                     exp).strftime('%Y-%m-%d')] = exp
             return r['optionChain']['result'][0]['options'][0]
-        except IndexError:
+        except:
             return {}
 
     def _options2df(self, opt, tz=None):

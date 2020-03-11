@@ -297,10 +297,11 @@ class TickerBase():
 
         # sustainability
         d = {}
-        if isinstance(data.get('esgScores'), dict):
-            for item in data['esgScores']:
-                if not isinstance(data['esgScores'][item], (dict, list)):
-                    d[item] = data['esgScores'][item]
+        esg_scores = data.get('esgScores')
+        if isinstance(esg_scores, dict) and 'err' not in esg_scores:
+            for item in esg_scores:
+                if not isinstance(esg_scores[item], (dict, list)):
+                    d[item] = esg_scores[item]
 
             s = _pd.DataFrame(index=[0], data=d)[-1:].T
             s.columns = ['Value']
@@ -319,7 +320,7 @@ class TickerBase():
             if isinstance(data.get(item), dict):
                 self._info.update(data[item])
 
-        self._info['regularMarketPrice'] = self._info['regularMarketOpen']
+        self._info['regularMarketPrice'] = self._info['regularMarketOpen'] if 'regularMarketOpen' in self._info else 0
         self._info['logo_url'] = ""
         try:
             domain = self._info['website'].split(
@@ -505,7 +506,7 @@ class TickerBase():
 
         q = ticker
         self.get_info(proxy=proxy)
-        if "shortName" in self._info:
+        if "shortName" in self._info and self._info["shortName"] is not None:
             q = self._info['shortName']
 
         url = 'https://markets.businessinsider.com/ajax/' \
