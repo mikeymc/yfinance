@@ -55,12 +55,13 @@ class Ticker(TickerBase):
             proxy = {"https": proxy}
 
         r = _requests.get(url=url, proxies=proxy).json()
-        if r['optionChain']['result']:
+        try:
             for exp in r['optionChain']['result'][0]['expirationDates']:
                 self._expirations[_datetime.datetime.fromtimestamp(
                     exp).strftime('%Y-%m-%d')] = exp
             return r['optionChain']['result'][0]['options'][0]
-        return {}
+        except IndexError:
+            return {}
 
     def _options2df(self, opt, tz=None):
         data = _pd.DataFrame(opt).reindex(columns=[

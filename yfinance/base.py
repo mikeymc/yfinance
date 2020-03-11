@@ -281,15 +281,19 @@ class TickerBase():
 
         # holders
         url = "{}/{}/holders".format(self._scrape_url, self.ticker)
-        holders = _pd.read_html(url)
-        self._major_holders = holders[0] if (holders is not None) and (len(holders) > 0) else _pd.DataFrame()
-        self._institutional_holders = holders[1] if (holders is not None) and (len(holders) > 1) else _pd.DataFrame()
-        if 'Date Reported' in self._institutional_holders:
-            self._institutional_holders['Date Reported'] = _pd.to_datetime(
-                self._institutional_holders['Date Reported'])
-        if '% Out' in self._institutional_holders:
-            self._institutional_holders['% Out'] = self._institutional_holders[
-                '% Out'].str.replace('%', '').astype(float)/100
+        try:
+            holders = _pd.read_html(url, flavor='lxml')
+            self._major_holders = holders[0] if (holders is not None) and (len(holders) > 0) else _pd.DataFrame()
+            self._institutional_holders = holders[1] if (holders is not None) and (len(holders) > 1) else _pd.DataFrame()
+            if 'Date Reported' in self._institutional_holders:
+                self._institutional_holders['Date Reported'] = _pd.to_datetime(
+                    self._institutional_holders['Date Reported'])
+            if '% Out' in self._institutional_holders:
+                self._institutional_holders['% Out'] = self._institutional_holders[
+                    '% Out'].str.replace('%', '').astype(float)/100
+        except ValueError:
+            self._major_holders = _pd.DataFrame()
+            self._institutional_holders = _pd.DataFrame()
 
         # sustainability
         d = {}
@@ -348,7 +352,7 @@ class TickerBase():
             self._recommendations = rec[[
                 'Firm', 'To Grade', 'From Grade', 'Action']].sort_index()
         except Exception:
-            pass
+            self._recommendations = _pd.DataFrame()
 
         # get fundamentals
         data = utils.get_json(url+'/financials', proxy)
@@ -393,6 +397,8 @@ class TickerBase():
     def get_calendar(self, proxy=None, as_dict=False, *args, **kwargs):
         self._get_fundamentals(proxy)
         data = self._calendar
+        if data is None:
+            data = _pd.DataFrame()
         if as_dict:
             return data.to_dict()
         return data
@@ -459,20 +465,26 @@ class TickerBase():
     def get_dividends(self, proxy=None):
         if self._history is None:
             self.history(period="max", proxy=proxy)
-        dividends = self._history["Dividends"]
-        return dividends[dividends != 0]
+            dividends = _pd.DataFrame()
+        else:
+            dividends = self._history["Dividends"]
+        return dividends
 
     def get_splits(self, proxy=None):
         if self._history is None:
             self.history(period="max", proxy=proxy)
-        splits = self._history["Stock Splits"]
-        return splits[splits != 0]
+            splits = _pd.DataFrame()
+        else:
+            splits = self._history["Stock Splits"]
+        return splits
 
     def get_actions(self, proxy=None):
         if self._history is None:
             self.history(period="max", proxy=proxy)
-        actions = self._history[["Dividends", "Stock Splits"]]
-        return actions[actions != 0].dropna(how='all').fillna(0)
+            actions = _pd.DataFrame()
+        else:
+            actions = self._history[["Dividends", "Stock Splits"]]
+        return actions
 
     def get_isin(self, proxy=None):
         # *** experimental ***
