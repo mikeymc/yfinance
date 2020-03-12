@@ -26,6 +26,7 @@ import datetime as _datetime
 import requests as _requests
 import pandas as _pd
 import numpy as _np
+from urllib.error import HTTPError
 
 try:
     from urllib.parse import quote as urlencode
@@ -291,7 +292,7 @@ class TickerBase():
             if '% Out' in self._institutional_holders:
                 self._institutional_holders['% Out'] = self._institutional_holders[
                     '% Out'].str.replace('%', '').astype(float)/100
-        except ValueError:
+        except (ValueError, HTTPError) as e:
             self._major_holders = _pd.DataFrame()
             self._institutional_holders = _pd.DataFrame()
 
