@@ -54,7 +54,7 @@ def test_ticker_to_json():
     print("OK")
 
 
-def test_big_list():
+def test_big_list_per_ticker():
     def run(t):
         try:
             yf.Ticker(t).to_json()
@@ -72,16 +72,20 @@ def test_big_list():
 
 def test_tickers_to_json():
     print(">>", "to_json()", end=' ... ')
-    tickers = "ALACU ALACW " \
-              "ALBO ALCO ALDX ALEC ALGN ALGR " \
-              "ALGRR ALGRU ALGRW ALGT ALIM ALJJ " \
-              "ALKS ALLK ALLO ALLO ALLT ALNA ALNY " \
-              "ALOT ALOT ALRM ALRN ALRS ALSK ALT " \
-              "ALTM ALTR ALTY ALXN ALYA"
-    ticker_json = yf.Tickers('AMZN C XOM AACG AAL AAME ACER AIRTP').to_json()
+    tickers = open('source_files/nasdaqlisted.txt').read().split()
+    tickers += open('source_files/otherlisted.txt').read().split()
+    ticker_json = yf.Tickers(tickers).to_json()
     json.loads(ticker_json)
     ticker_json = yf.Tickers(tickers).to_json()
     json.loads(ticker_json)
+    print("OK")
+
+
+def test_tickers_download():
+    print(">>", "download()", end=' ... ')
+    tickers = open('source_files/nasdaqlisted.txt').read().split()
+    tickers += open('source_files/otherlisted.txt').read().split()
+    json.loads(yf.Tickers(tickers).download().to_json())
     print("OK")
 
 
@@ -90,3 +94,4 @@ if __name__ == "__main__":
     test_tickers_to_json()
     test_ticker_to_json()
     test_big_list()
+    test_tickers_download()

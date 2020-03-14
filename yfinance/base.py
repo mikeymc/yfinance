@@ -493,9 +493,7 @@ class TickerBase():
         if self._isin is not None:
             return self._isin
 
-        ticker = self.ticker.upper()
-
-        if "-" in ticker or "^" in ticker:
+        if "-" in self.ticker or "^" in self.ticker:
             self._isin = '-'
             return self._isin
 
@@ -505,7 +503,7 @@ class TickerBase():
                 proxy = proxy["https"]
             proxy = {"https": proxy}
 
-        q = ticker
+        q = self.ticker
         self.get_info(proxy=proxy)
         if "shortName" in self._info and self._info["shortName"] is not None:
             q = self._info['shortName']
@@ -515,7 +513,7 @@ class TickerBase():
             % urlencode(q)
         data = _requests.get(url=url, proxies=proxy).text
 
-        search_str = '"{}|'.format(ticker)
+        search_str = '"{}|'.format(self.ticker)
         if search_str not in data:
             if q.lower() in data.lower():
                 search_str = '"|'
