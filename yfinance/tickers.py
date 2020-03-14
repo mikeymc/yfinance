@@ -77,6 +77,9 @@ class Tickers():
     def to_json(self):
         return json.dumps({"tickers": [t.to_dict() for t in self.tickers]})
 
+    def to_dict(self):
+        return {"tickers": [t.to_dict() for t in self.tickers]}
+
     def download(self, period="1mo", interval="1d",
                  start=None, end=None, prepost=False,
                  actions=True, auto_adjust=True, proxy=None,
