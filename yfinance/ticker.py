@@ -86,25 +86,6 @@ class Ticker(TickerBase):
             data['lastTradeDate'] = data['lastTradeDate'].tz_localize(tz)
         return data
 
-    def option_chain(self, date=None, proxy=None, tz=None):
-        if date is None:
-            options = self._download_options(proxy=proxy)
-        else:
-            if not self._expirations:
-                self._download_options()
-            if date not in self._expirations:
-                raise ValueError(
-                    "Expiration `%s` cannot be found. "
-                    "Available expiration are: [%s]" % (
-                        date, ', '.join(self._expirations)))
-            date = self._expirations[date]
-            options = self._download_options(date, proxy=proxy)
-
-        return _namedtuple('Options', ['calls', 'puts'])(**{
-            "calls": self._options2df(options['calls'], tz=tz),
-            "puts": self._options2df(options['puts'], tz=tz)
-        })
-
     def to_json(self):
         return json.dumps(self, cls=TickerEncoder)
 
