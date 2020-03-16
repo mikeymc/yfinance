@@ -27,6 +27,7 @@ import requests as _requests
 import pandas as _pd
 import numpy as _np
 from urllib.error import HTTPError
+from .http_fetchers import HttpFetcher
 
 try:
     from urllib.parse import quote as urlencode
@@ -508,10 +509,7 @@ class TickerBase():
         if "shortName" in self._info and self._info["shortName"] is not None:
             q = self._info['shortName']
 
-        url = 'https://markets.businessinsider.com/ajax/' \
-              'SearchController_Suggest?max_results=25&query=%s' \
-            % urlencode(q)
-        data = _requests.get(url=url, proxies=proxy).text
+        data = HttpFetcher.fetch_from_business_insider(q, proxy)
 
         search_str = '"{}|'.format(self.ticker)
         if search_str not in data:
