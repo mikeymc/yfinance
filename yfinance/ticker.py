@@ -34,12 +34,7 @@ class Ticker(TickerBase):
         return 'yfinance.Ticker object <%s>' % self.ticker
 
     def _download_options(self, date=None, proxy=None):
-        if date is None:
-            url = "{}/v7/finance/options/{}".format(
-                self._base_url, self.ticker)
-        else:
-            url = "{}/v7/finance/options/{}?date={}".format(
-                self._base_url, self.ticker, date)
+        url = "{}/v7/finance/options/{}?date={}".format(self._base_url, self.ticker, date)
 
         # setup proxy in requests format
         if proxy is not None:
