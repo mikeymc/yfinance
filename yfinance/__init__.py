@@ -25,6 +25,7 @@ __author__ = "Ran Aroussi"
 from .ticker import Ticker
 from .tickers import Tickers
 from .multi import download
+from .http_fetchers import HttpFetcher
 
 
 def pdr_override():

@@ -23,27 +23,20 @@ from __future__ import print_function
 
 import time as _time
 import datetime as _datetime
-import requests as _requests
 import pandas as _pd
 import numpy as _np
 from urllib.error import HTTPError
 from .http_fetchers import HttpFetcher
+from . import utils
+from . import shared
 
 try:
     from urllib.parse import quote as urlencode
 except ImportError:
     from urllib import quote as urlencode
 
-from . import utils
 
-# import json as _json
-# import re as _re
-# import sys as _sys
-
-from . import shared
-
-
-class TickerBase():
+class TickerBase:
     def __init__(self, ticker):
         self.ticker = ticker.upper()
         self._history = None
@@ -148,8 +141,7 @@ class TickerBase():
             proxy = {"https": proxy}
 
         # Getting data from json
-        url = "{}/v8/finance/chart/{}".format(self._base_url, self.ticker)
-        data = _requests.get(url=url, params=params, proxies=proxy)
+        data = HttpFetcher.fetch_from_yahoo_finance_v8(self.ticker, params=params, proxy=proxy)
         if "Will be right back" in data.text:
             raise RuntimeError("*** YAHOO! FINANCE IS CURRENTLY DOWN! ***\n"
                                "Our engineers are working quickly to resolve "
