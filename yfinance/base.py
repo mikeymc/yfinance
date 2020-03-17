@@ -380,7 +380,7 @@ class TickerBase:
                 pass
 
         # earnings
-        if isinstance(data.get('earnings') and data['earnings']['err'] is not None, dict):
+        if isinstance(data['earnings'] is not None and data['earnings']['err'] is not None, dict):
             earnings = data['earnings']['financialsChart']
             df = _pd.DataFrame(earnings['yearly']).set_index('date')
             df.columns = utils.camel2title(df.columns)
