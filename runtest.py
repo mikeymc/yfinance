@@ -51,6 +51,7 @@ def test_ticker_to_json():
     yf.Ticker('MSFT').to_json()
     yf.Ticker('ALACR').to_json()
     yf.Ticker('ALYA').to_json()
+    yf.Ticker('ACAMW').to_json()
     print("OK")
 
 
@@ -92,6 +93,6 @@ def test_tickers_download():
 if __name__ == "__main__":
     test_yfinance()
     test_tickers_to_json()
-    test_ticker_to_json()
-    test_big_list()
-    test_tickers_download()
+    # test_ticker_to_json()
+    # test_big_list_per_ticker()
+    # test_tickers_download()

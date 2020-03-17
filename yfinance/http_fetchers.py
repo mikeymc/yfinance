@@ -1,5 +1,6 @@
 import requests as _requests
 import pandas as _pd
+from . import utils
 
 try:
     from urllib.parse import quote as urlencode
@@ -21,3 +22,7 @@ class HttpFetcher:
     def fetch_holders(ticker_symbol):
         url = "https://finance.yahoo.com/quote/{}/holders".format(ticker_symbol)
         return _pd.read_html(url, flavor='lxml')
+
+    def fetch_financials(ticker_symbol, proxy):
+        url = "https://finance.yahoo.com/quote/{}/financials".format(ticker_symbol)
+        return utils.get_json(url, proxy)

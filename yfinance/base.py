@@ -243,12 +243,18 @@ class TickerBase:
 
     def _get_fundamentals(self, kind=None, proxy=None):
         def cleanup(data):
-            df = _pd.DataFrame(data).drop(columns=['maxAge'])
+            df = _pd.DataFrame(data)
+            try:
+                df.drop(columns=['maxAge'])
+            except:
+                pass
             for col in df.columns:
                 df[col] = _np.where(
                     df[col].astype(str) == '-', _np.nan, df[col])
-
-            df.set_index('endDate', inplace=True)
+            try:
+                df.set_index('endDate', inplace=True)
+            except:
+                pass
             try:
                 df.index = _pd.to_datetime(df.index, unit='s')
             except ValueError:
@@ -350,7 +356,7 @@ class TickerBase:
             self._recommendations = _pd.DataFrame()
 
         # get fundamentals
-        data = utils.get_json(url+'/financials', proxy)
+        data = HttpFetcher.fetch_financials(self.ticker, proxy)
 
         # generic patterns
         for key in (
@@ -359,16 +365,22 @@ class TickerBase:
             (self._financials, 'incomeStatement', 'incomeStatementHistory')
         ):
 
-            item = key[1] + 'History'
-            if isinstance(data.get(item), dict):
-                key[0]['yearly'] = cleanup(data[item][key[2]])
+            try:
+                item = key[1] + 'History'
+                if isinstance(data.get(item), dict):
+                    key[0]['yearly'] = cleanup(data[item][key[2]])
+            except:
+                pass
 
-            item = key[1]+'HistoryQuarterly'
-            if isinstance(data.get(item), dict):
-                key[0]['quarterly'] = cleanup(data[item][key[2]])
+            try:
+                item = key[1]+'HistoryQuarterly'
+                if isinstance(data.get(item), dict) and data[item] is not None:
+                    key[0]['quarterly'] = cleanup(data[item][key[2]])
+            except:
+                pass
 
         # earnings
-        if isinstance(data.get('earnings'), dict):
+        if isinstance(data.get('earnings') and data['earnings']['err'] is not None, dict):
             earnings = data['earnings']['financialsChart']
             df = _pd.DataFrame(earnings['yearly']).set_index('date')
             df.columns = utils.camel2title(df.columns)
