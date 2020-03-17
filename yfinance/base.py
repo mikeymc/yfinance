@@ -276,7 +276,7 @@ class TickerBase:
         # holders
         url = "{}/{}/holders".format(self._scrape_url, self.ticker)
         try:
-            holders = _pd.read_html(url, flavor='lxml')
+            holders = HttpFetcher.fetch_holders(self.ticker)
             self._major_holders = holders[0] if (holders is not None) and (len(holders) > 0) else _pd.DataFrame()
             self._institutional_holders = holders[1] if (holders is not None) and (len(holders) > 1) else _pd.DataFrame()
             if 'Date Reported' in self._institutional_holders:
